@@ -5,7 +5,7 @@ class Airport {
   }
 
   // Override toString to return the airport code
-  toString() {
+  get [Symbol.toStringTag]() {
     return this._code;
   }
 }
