@@ -1,43 +1,36 @@
-const request = require("request");
-const {describe, it} = require("mocha");
-const expect = require("chai").expect;
+const request = require('request');
+const { expect } = require('chai');
 
-describe("Index page", function() {
-    const options = {
-	link: "http://localhost:7865/",
-	method: "GET"
-    }
-    it("status code", function(done) {
-		request(options, function(err, res, body) {
-	    expect(res.statusCode).to.equal(200);
-	    done();
-	});
-    });
-    it("check correct content", function(done) {
-	request(options, function(err, res, body) {
-	    expect(body).to.equal("Welcome to the payment system");
-	    done();
-	});
-    });
-});
+describe('API integration test', () => {
+  const link = 'http://localhost:7865';
 
-describe("Cart page", function() {
-    it("status code for correct link", function(done) {
-	request.get("http://localhost:7865/cart/12", function(err, res, body) {
-	    expect(res.statusCode).to.equal(200);
-	    done();
-	});
+  it('GET / returns correct response', (done) => {
+    request.get(`${link}/`, (_err, res, body) => {
+      expect(res.statusCode).to.be.equal(200);
+      expect(body).to.be.equal('Welcome to the payment system');
+      done();
     });
-    it("correct link", function(done) {
-	request.get("http://localhost:7865/cart/12", function(err, res, body) {
-	    expect(body).to.contain("Payment methods for cart 12");
-	    done();
-	});
+  });
+
+  it('GET /cart/:id returns correct response for valid :id', (done) => {
+    request.get(`${link}/cart/47`, (_err, res, body) => {
+      expect(res.statusCode).to.be.equal(200);
+      expect(body).to.be.equal('Payment methods for cart 47');
+      done();
     });
-    it("status code for wrong link", function(done) {
-	request.get("http://localhost:7865/cart/kim", function(err, res, body) {
-	    expect(res.statusCode).to.equal(404);
-	    done();
-	});
+  });
+
+  it('GET /cart/:id returns 404 response for negative number values in :id', (done) => {
+    request.get(`${link}/cart/-47`, (_err, res, _body) => {
+      expect(res.statusCode).to.be.equal(404);
+      done();
     });
+  });
+
+  it('GET /cart/:id returns 404 response for non-numeric values in :id', (done) => {
+    request.get(`${link}/cart/d200-44a5-9de6`, (_err, res, _body) => {
+      expect(res.statusCode).to.be.equal(404);
+      done();
+    });
+  });
 });
